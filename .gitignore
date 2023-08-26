@@ -1,0 +1,12 @@
+# Compiled files
+*.bin
+*.eep
+*.elf
+*.hex
+*.map
+
+# Mac OS
+.DS_Store
+
+# Secrets
+*secrets.h

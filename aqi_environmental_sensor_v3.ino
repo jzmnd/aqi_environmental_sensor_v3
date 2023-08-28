@@ -93,7 +93,6 @@ void testWifiConnection() {
   int wifiStatus = WiFi.status();
   if (wifiStatus == WL_CONNECTION_LOST || wifiStatus == WL_DISCONNECTED || wifiStatus == WL_SCAN_COMPLETED) {
     wifiConnect();
-    mqttConnect();
   }
 }
 
@@ -106,6 +105,14 @@ void mqttConnect() {
     Serial.print("MQTT connection failed! Error code = ");
     Serial.println(mqttClient.connectError());
     while (true);
+  }
+}
+
+// Function to test MQTT connection and reconnect
+void testMqttConnection() {
+  if (!mqttClient.connected()) {
+    Serial.println("MQTT connection lost");
+    mqttConnect();
   }
 }
 
@@ -213,8 +220,9 @@ void loop() {
   // avoids being disconnected by the broker
   mqttClient.poll();
 
-  // Check Wifi connection
+  // Check Wifi and MQTT connections
   testWifiConnection();
+  testMqttConnection();
 
   // Read PMS sensor data
   if (pms.read()) {

@@ -6,7 +6,7 @@
     For use with Arduino MKR 1010 (SAMD)
     With MQTT smart home integration
 */
-#define DEBUG
+#define DEBUG_SER
 
 #include <ArduinoMqttClient.h>
 #include <WiFiNINA.h>
@@ -79,8 +79,10 @@ void SERCOM3_Handler() {
 void wifiConnect() {
   int wifiStatus = WL_IDLE_STATUS;
   while (wifiStatus != WL_CONNECTED) {
+#ifdef DEBUG_SER
     Serial.print("Attempting to connect to network: ");
     Serial.println(ssid);
+#endif
     // Connect to WPA/WPA2 network
     wifiStatus = WiFi.begin(ssid, pass);
     // Wait 10 seconds for connection
@@ -99,8 +101,10 @@ void testWifiConnection() {
 // Function to connect to MQTT client
 void mqttConnect() {
   mqttClient.setUsernamePassword(mqttUsername, mqttPassword);
+#ifdef DEBUG_SER
   Serial.print("Attempting to connect to the MQTT broker: ");
   Serial.println(mqttBroker);
+#endif
   if (!mqttClient.connect(mqttBroker, mqttPort)) {
     Serial.print("MQTT connection failed! Error code = ");
     Serial.println(mqttClient.connectError());
@@ -175,7 +179,9 @@ void setup() {
   blink(4);
   // debug output
   Serial.begin(115200);
+#ifdef DEBUG_SER
   while (!Serial);
+#endif
   // PMS sensor output
   pmsSerial.begin(9600);
   pinPeripheral(PMS_RX_PIN, PIO_SERCOM);  // Assign RX function to pin 1
@@ -195,7 +201,9 @@ void setup() {
   delay(1000);
   // SD card setup
   if (!SD.begin(SD_CHIP_SELECT_PIN)) {
+#ifdef DEBUG_SER
     Serial.println("SD initialization failed!");
+#endif
     while (true);
   }
   // Attempt to connect to Wifi network
@@ -203,9 +211,11 @@ void setup() {
   // Attempt to connect to MQTT broker
   mqttConnect();
 
+#ifdef DEBUG_SER
   Serial.println("Initialization complete.");
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
+#endif
 }
 
 /*
@@ -226,7 +236,7 @@ void loop() {
 
   // Read PMS sensor data
   if (pms.read()) {
-#ifdef DEBUG
+#ifdef DEBUG_SER
     Serial.println("-------------");
     pms.print_cu_std();
     Serial.println("-------------");
@@ -246,7 +256,7 @@ void loop() {
   hih.process();
   if (hih.isFinished() && !printed) {
     printed = true;
-#ifdef DEBUG
+#ifdef DEBUG_SER
     Serial.print("RH: ");
     Serial.print(hih.getRelHumidity() / 100.0);
     Serial.println(" %");
